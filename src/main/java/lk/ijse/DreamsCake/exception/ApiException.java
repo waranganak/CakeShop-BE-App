@@ -1,4 +1,4 @@
-package com.example.spring_security_test.exception;
+package lk.ijse.DreamsCake.exception;
 
 
 import lombok.AllArgsConstructor;
