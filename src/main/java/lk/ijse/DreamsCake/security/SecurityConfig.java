@@ -1,4 +1,4 @@
-package com.example.spring_security_test.security;
+package lk.ijse.DreamsCake.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,18 +28,35 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/v1/test/login").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/v1/test/users").hasAnyRole("CUSTOMER")
+                        .requestMatchers("/v1/user/login", "/v1/user/signup").permitAll()
+
+                        .requestMatchers("/v1/product/**", "/v1/category/**", "/v1/ingredient/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/v1/user/users").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"code\":401, \"message\":\"Unauthorized: " + authException.getMessage() + "\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"code\":403, \"message\":\"Access Denied: " + accessDeniedException.getMessage() + "\"}");
+                        })
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()) // Add this
+                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

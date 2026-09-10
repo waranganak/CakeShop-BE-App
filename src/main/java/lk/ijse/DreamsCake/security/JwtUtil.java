@@ -1,6 +1,6 @@
-package com.example.spring_security_test.security;
+package lk.ijse.DreamsCake.security;
 
-import com.example.spring_security_test.dto.UserDTO;
+import lk.ijse.DreamsCake.dto.UserDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,11 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getUserId());
         claims.put("role", user.getUserRoles());
-        claims.put("username", user.getUsername());
+        claims.put("username", user.getUserName());
 
         return Jwts.builder()
                 .setClaims(claims)
-                .subject(user.getUsername())
+                .subject(user.getUserName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // Now works with Long
                 .signWith(getSignKey(), SignatureAlgorithm.HS256) // Use HS256, not HS512 with secretKey

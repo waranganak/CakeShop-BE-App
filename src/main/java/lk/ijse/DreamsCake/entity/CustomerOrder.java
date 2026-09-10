@@ -24,8 +24,9 @@ public class CustomerOrder {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+
     @ManyToOne
-    private User user;
+    private Customer customer;
 
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;

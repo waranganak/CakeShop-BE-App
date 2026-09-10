@@ -1,6 +1,7 @@
 package lk.ijse.DreamsCake.entity;
 
 import jakarta.persistence.*;
+import lk.ijse.DreamsCake.enums.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,21 +15,20 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String email;
-    private String password;
-    private String phone;
 
-    @ManyToOne
-    private Role role;
+    private long userId;
+    private String userName;
+    private String password;
+    private String userRoles;
+
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AuditLog> auditLogs;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CustomerOrder> customerOrders;
 
     @OneToMany(mappedBy = "rider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Delivery> deliveries;
+
+
 }

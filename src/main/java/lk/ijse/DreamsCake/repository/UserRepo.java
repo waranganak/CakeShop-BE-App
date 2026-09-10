@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
     Optional<User> findByUserNameAndPassword(String username, String password);
-    Optional<User> findByUserName(String username);
 
     @Query(value = "SELECT new lk.ijse.DreamsCake.dto.UserDTO(u.userId,u.userName,u.userRoles) " +
             "FROM User u")
@@ -27,4 +26,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query(value = "SELECT new lk.ijse.DreamsCake.dto.UserDTO(u.userId,u.userName,u.userRoles) " +
             "FROM User u WHERE u.userId=?1")
     UserDTO selectUser(long userId);
+
+    Optional<User> findByUserName(String username);
 }

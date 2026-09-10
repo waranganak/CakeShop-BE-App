@@ -1,5 +1,8 @@
 package lk.ijse.DreamsCake.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +12,18 @@ import lombok.NoArgsConstructor;
 @Data
 public class CustomerDTO {
     private Long id;
+
+    @NotBlank(message = "Customer name cannot be blank")
     private String name;
+
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotBlank(message = "Phone number cannot be blank")
+    @Pattern(regexp = "^0\\d{9}$", message = "Invalid phone number format (Ex: 0712345678)")
     private String phone;
+
+    @NotBlank(message = "Address cannot be blank")
     private String address;
 }

@@ -1,4 +1,9 @@
 package lk.ijse.DreamsCake.repository;
 
-public interface PaymentRepo {
+import lk.ijse.DreamsCake.entity.Payment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PaymentRepo extends JpaRepository<Payment, Long> {
 }

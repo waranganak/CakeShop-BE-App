@@ -1,5 +1,6 @@
 package lk.ijse.DreamsCake.service;
 
+import lk.ijse.DreamsCake.dto.SignupDTO;
 import lk.ijse.DreamsCake.dto.UserDTO;
 import java.util.List;
 
@@ -7,8 +8,7 @@ public interface UserService {
     UserDTO getUserDetails(String username, String password);
 
 
-    void saveUser(UserDTO userDTO);
-
+    void saveUser(SignupDTO signupDTO);
     List<UserDTO> getAllUsers();
 
     List<UserDTO> filterUsers(String username);
@@ -16,4 +16,5 @@ public interface UserService {
     UserDTO selectUser(long userId);
 
     void updateUser(UserDTO userDTO);
+
 }

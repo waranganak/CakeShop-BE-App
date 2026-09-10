@@ -1,6 +1,6 @@
-package com.example.spring_security_test.security;
+package lk.ijse.DreamsCake.security;
 
-import com.example.spring_security_test.dto.CommonResponse;
+import lk.ijse.DreamsCake.constant.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -9,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -72,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void handleJwtException(HttpServletResponse response, int code, String message) throws IOException {
-        response.setStatus(HttpStatus.OK.value());
+        response.setStatus(code);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         CommonResponse errorResponse = new CommonResponse(code, message);

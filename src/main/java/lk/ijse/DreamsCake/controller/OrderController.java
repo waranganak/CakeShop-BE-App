@@ -2,7 +2,7 @@ package lk.ijse.DreamsCake.controller;
 
 import lk.ijse.DreamsCake.constant.CommonResponse;
 import lk.ijse.DreamsCake.dto.CustomerOrderDTO;
-import lk.ijse.DreamsCake.service.OrderService;
+import lk.ijse.DreamsCake.service.CustomerOrderService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +16,9 @@ import static lk.ijse.DreamsCake.constant.ResponseStatusCode.OPERATION_SUCCESS;
 @RequestMapping(value = "v1/orders")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final CustomerOrderService orderService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(CustomerOrderService orderService) {
         this.orderService = orderService;
     }
 

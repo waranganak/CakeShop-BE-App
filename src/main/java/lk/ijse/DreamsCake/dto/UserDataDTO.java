@@ -1,4 +1,4 @@
-package com.example.spring_security_test.dto;
+package lk.ijse.DreamsCake.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDataDTO {
-
     private long userId;
+    private Long customerId;
     private String token;
+    private String role;
 }

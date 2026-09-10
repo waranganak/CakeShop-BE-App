@@ -1,6 +1,6 @@
-package com.example.spring_security_test.security;
+package lk.ijse.DreamsCake.security;
 
-import com.example.spring_security_test.repository.UserRepository;
+import lk.ijse.DreamsCake.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,15 +15,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserRepo userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<com.example.spring_security_test.entity.User> optionalUser = userRepository.findByUserName(username);
+        Optional<lk.ijse.DreamsCake.entity.User> optionalUser = userRepository.findByUserName(username);
 
         if(optionalUser.isEmpty())
-            throw new RuntimeException("Sorry no user");
-
+            throw new UsernameNotFoundException("Sorry no user");
 
         String userRolesStr = optionalUser.get().getUserRoles();
         String[] roles = new String[0];

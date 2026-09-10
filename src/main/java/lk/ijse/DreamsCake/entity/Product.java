@@ -17,7 +17,9 @@ public class Product {
     private Long id;
     private String productName;
     private Double price;
+    private int qty;
     private String description;
+
 
     @ManyToOne
     private Category category;
