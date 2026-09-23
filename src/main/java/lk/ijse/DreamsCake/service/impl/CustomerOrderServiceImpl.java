@@ -4,13 +4,13 @@ import lk.ijse.DreamsCake.dto.CustomerOrderDTO;
 import lk.ijse.DreamsCake.dto.OrderDetailDTO;
 import lk.ijse.DreamsCake.entity.*;
 import lk.ijse.DreamsCake.enums.OrderStatus;
+import lk.ijse.DreamsCake.enums.PaymentMethod;
+import lk.ijse.DreamsCake.enums.PaymentStatus;
 import lk.ijse.DreamsCake.exception.ApiException;
-import lk.ijse.DreamsCake.repository.CustomerOrderRepo;
-import lk.ijse.DreamsCake.repository.CustomerRepo;
-import lk.ijse.DreamsCake.repository.IngredientRepo;
-import lk.ijse.DreamsCake.repository.ProductRepo;
+import lk.ijse.DreamsCake.repository.*;
 import lk.ijse.DreamsCake.service.CustomerOrderService;
-import lk.ijse.DreamsCake.service.EmailService; // 👈 1. EmailService එක ඉම්පෝට් කරගන්න
+import lk.ijse.DreamsCake.service.EmailService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,21 +22,15 @@ import java.util.List;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     private final CustomerOrderRepo orderRepo;
     private final CustomerRepo customerRepo;
     private final ProductRepo productRepo;
     private final IngredientRepo ingredientRepo;
+    private final ProductIngredientRepo productIngredientRepo;
     private final EmailService emailService;
-
-    public CustomerOrderServiceImpl(CustomerOrderRepo orderRepo, CustomerRepo customerRepo, ProductRepo productRepo, IngredientRepo ingredientRepo, EmailService emailService) {
-        this.orderRepo = orderRepo;
-        this.customerRepo = customerRepo;
-        this.productRepo = productRepo;
-        this.ingredientRepo = ingredientRepo;
-        this.emailService = emailService;
-    }
 
     @Override
     public void placeOrder(CustomerOrderDTO orderDTO) {
@@ -51,6 +45,17 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setCustomer(customer);
 
+        Payment payment = new Payment();
+        if (orderDTO.getPaymentMethod() != null && !orderDTO.getPaymentMethod().isEmpty()) {
+            payment.setPaymentMethod(PaymentMethod.valueOf(orderDTO.getPaymentMethod()));
+        } else {
+            payment.setPaymentMethod(PaymentMethod.COD);
+        }
+        payment.setAmount(orderDTO.getTotalAmount());
+        payment.setPaymentStatus(PaymentStatus.PENDING);
+        payment.setCustomerOrder(order);
+        order.setPayment(payment);
+
         List<OrderDetailDTO> orderDetailDTOs = new ArrayList<>();
         List<OrderDetail> orderDetails = new ArrayList<>();
 
@@ -58,6 +63,39 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             for (OrderDetailDTO dto : orderDTO.getOrderDetails()) {
                 Product product = productRepo.findById(dto.getProductId())
                         .orElseThrow(() -> new ApiException("Product not found with ID: " + dto.getProductId()));
+
+                if (product.getQty() < dto.getQuantity()) {
+                    throw new ApiException("Insufficient stock for product: " + product.getProductName());
+                }
+
+                product.setQty(product.getQty() - dto.getQuantity());
+                productRepo.save(product);
+                List<ProductIngredient> productIngredients = productIngredientRepo.findByProduct(product);
+                for (ProductIngredient pi : productIngredients) {
+                    Ingredient ingredient = pi.getIngredient();
+                    double requiredQtyPerUnit = pi.getRequiredQuantity();
+                    double totalRequiredQty = requiredQtyPerUnit * dto.getQuantity();
+
+                    double availableStock = ingredient.getQuantityInStock();
+                    String unit = ingredient.getUnit() != null ? ingredient.getUnit().name() : "";
+                    double stockInBaseUnit = availableStock;
+                    if ("KG".equals(unit)) {
+                        stockInBaseUnit = availableStock * 1000;
+                    }
+
+                    if (stockInBaseUnit < totalRequiredQty) {
+                        throw new ApiException("Insufficient stock for ingredient: " + ingredient.getIngredientName());
+                    }
+
+                    double remainingBaseUnit = stockInBaseUnit - totalRequiredQty;
+                    if ("KG".equals(unit)) {
+                        ingredient.setQuantityInStock(remainingBaseUnit / 1000.0);
+                    } else {
+                        ingredient.setQuantityInStock(remainingBaseUnit);
+                    }
+
+                    ingredientRepo.save(ingredient);
+                }
 
                 OrderDetail detail = new OrderDetail();
                 detail.setCustomerOrder(order);
@@ -69,7 +107,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
                 orderDetailDTOs.add(new OrderDetailDTO(
                         product.getId(),
-                        product.getProductName(),
+                        dto.getProductName(),
                         dto.getQuantity(),
                         detail.getSubTotal()
                 ));
@@ -79,7 +117,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         order.setOrderDetails(orderDetails);
         CustomerOrder savedOrder = orderRepo.save(order);
 
-        log.info("Order saved successfully to customer_orders table!");
+        log.info("Order, Payment, and Stock updated successfully!");
 
         try {
             String customerEmail = customer.getEmail();
@@ -102,5 +140,47 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     public List<CustomerOrderDTO> getOrdersByCustomer(Long customerId) {
         log.info("Fetching orders for customer ID: {}", customerId);
         return orderRepo.getOrdersByCustomerId(customerId);
+    }
+
+    @Override
+    public List<CustomerOrderDTO> getAllOrders() {
+        log.info("Fetching all customer orders for admin...");
+
+        List<CustomerOrder> orders = orderRepo.findAllOrdersWithPayments();
+        List<CustomerOrderDTO> orderDTOs = new ArrayList<>();
+
+        for (CustomerOrder order : orders) {
+            CustomerOrderDTO dto = new CustomerOrderDTO();
+            dto.setId(order.getId());
+            dto.setOrderDate(order.getOrderDate());
+            dto.setTotalAmount(order.getTotalAmount());
+            dto.setStatus(order.getStatus());
+
+            if (order.getCustomer() != null) {
+                dto.setCustomerId(order.getCustomer().getId());
+            }
+
+            List<OrderDetailDTO> detailDTOs = new ArrayList<>();
+            if (order.getOrderDetails() != null) {
+                for (OrderDetail detail : order.getOrderDetails()) {
+                    OrderDetailDTO detailDTO = new OrderDetailDTO();
+                    detailDTO.setProductId(detail.getProduct() != null ? detail.getProduct().getId() : null);
+
+                    String prodName = (detail.getProduct() != null && detail.getProduct().getProductName() != null)
+                            ? detail.getProduct().getProductName()
+                            : "Unknown Product";
+                    detailDTO.setProductName(prodName);
+
+                    detailDTO.setQuantity(detail.getQuantity());
+                    detailDTO.setPrice(detail.getSubTotal());
+
+                    detailDTOs.add(detailDTO);
+                }
+            }
+            dto.setOrderDetails(detailDTOs);
+            orderDTOs.add(dto);
+        }
+
+        return orderDTOs;
     }
 }

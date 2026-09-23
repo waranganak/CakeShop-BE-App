@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping(value = "v1/user")
 @CrossOrigin
 @RequiredArgsConstructor
+
 public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
@@ -50,9 +51,16 @@ public class UserController {
         String token = jwtUtil.generateToken(userDetails);
 
         UserDataDTO userDataDTO = new UserDataDTO();
-        userDataDTO.setUserId(userDetails.getUserId());
         userDataDTO.setToken(token);
         userDataDTO.setRole(userDetails.getUserRoles());
+
+        if ("CUSTOMER".equalsIgnoreCase(userDetails.getUserRoles())) {
+            Long customerId = customerService.getCustomerIdByUsername(authDTO.getUserName());
+
+            userDataDTO.setUserId(customerId != null ? customerId : userDetails.getUserId());
+        } else {
+            userDataDTO.setUserId(userDetails.getUserId());
+        }
 
         return new CommonResponse(0, userDataDTO, "JWT Token");
     }
@@ -86,5 +94,21 @@ public class UserController {
 
         userService.updateUser(userDTO);
         return new CommonResponse(0, "USER UPDATED");
+    }
+
+    @DeleteMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse deleteUser(@PathVariable long userId){
+        userService.deleteUser(userId);
+        return new CommonResponse(0, "USER DELETED SUCCESSFULLY");
+    }
+    @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse saveUser(@Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getFieldError().getDefaultMessage();
+            return new CommonResponse(400, null, errorMsg);
+        }
+
+        userService.saveUser(userDTO);
+        return new CommonResponse(0, "User Saved Successfully!");
     }
 }

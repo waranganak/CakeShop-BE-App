@@ -5,28 +5,22 @@ import lk.ijse.DreamsCake.entity.Ingredient;
 import lk.ijse.DreamsCake.enums.UnitType;
 import lk.ijse.DreamsCake.exception.ApiException;
 import lk.ijse.DreamsCake.repository.IngredientRepo;
-import lk.ijse.DreamsCake.service.AuditLogService;
 import lk.ijse.DreamsCake.service.IngredientService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class IngredientServiceImpl implements IngredientService {
 
     private final IngredientRepo ingredientRepo;
-    private final AuditLogService auditLogService;
-
-    public IngredientServiceImpl(IngredientRepo ingredientRepo, AuditLogService auditLogService) {
-        this.ingredientRepo = ingredientRepo;
-        this.auditLogService = auditLogService;
-    }
 
     @Override
     public void saveIngredient(IngredientDTO dto) {
@@ -43,8 +37,6 @@ public class IngredientServiceImpl implements IngredientService {
         ingredient.setReorderLevel(dto.getReorderLevel() != null ? dto.getReorderLevel() : 0.0);
 
         ingredientRepo.save(ingredient);
-
-        auditLogService.saveLog("Created ingredient: " + dto.getName(), 1L);
     }
 
     @Override
@@ -60,8 +52,6 @@ public class IngredientServiceImpl implements IngredientService {
         ingredient.setReorderLevel(dto.getReorderLevel() != null ? dto.getReorderLevel() : 0.0);
 
         ingredientRepo.save(ingredient);
-
-        auditLogService.saveLog("Updated ingredient: " + dto.getName(), 1L);
     }
 
     @Override
@@ -73,7 +63,6 @@ public class IngredientServiceImpl implements IngredientService {
         }
 
         ingredientRepo.deleteById(id);
-        auditLogService.saveLog("Deleted ingredient ID: " + id, 1L);
     }
 
     @Override
@@ -97,6 +86,19 @@ public class IngredientServiceImpl implements IngredientService {
         log.info("Fetching all ingredients from database");
 
         List<Ingredient> ingredients = ingredientRepo.findAll();
+        return ingredients.stream().map(ing -> new IngredientDTO(
+                ing.getId(),
+                ing.getIngredientName(),
+                ing.getUnit() != null ? ing.getUnit().name() : "",
+                ing.getQuantityInStock() != null ? ing.getQuantityInStock() : 0.0,
+                ing.getReorderLevel() != null ? ing.getReorderLevel() : 0.0
+        )).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IngredientDTO> getLowStockIngredients() {
+        log.info("Fetching low stock ingredients from database");
+        List<Ingredient> ingredients = ingredientRepo.findLowStockIngredients();
         return ingredients.stream().map(ing -> new IngredientDTO(
                 ing.getId(),
                 ing.getIngredientName(),

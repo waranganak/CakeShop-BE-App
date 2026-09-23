@@ -9,6 +9,9 @@ public interface UserService {
 
 
     void saveUser(SignupDTO signupDTO);
+
+    void saveUser(UserDTO userDTO);
+
     List<UserDTO> getAllUsers();
 
     List<UserDTO> filterUsers(String username);
@@ -17,4 +20,5 @@ public interface UserService {
 
     void updateUser(UserDTO userDTO);
 
+    void deleteUser(long userId);
 }

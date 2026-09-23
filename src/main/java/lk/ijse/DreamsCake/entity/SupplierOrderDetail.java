@@ -16,7 +16,6 @@ public class SupplierOrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double quantity;
-    private Double unitPrice;
 
     @ManyToOne
     private SupplierOrder supplierOrder;

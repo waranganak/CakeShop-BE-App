@@ -23,12 +23,7 @@ public class User {
 
 
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AuditLog> auditLogs;
 
-
-    @OneToMany(mappedBy = "rider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Delivery> deliveries;
 
 
 }

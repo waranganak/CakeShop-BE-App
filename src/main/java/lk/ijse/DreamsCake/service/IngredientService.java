@@ -13,6 +13,6 @@ public interface IngredientService {
     void deleteIngredient(Long id);
 
     IngredientDTO searchIngredient(Long id);
-
+    List<IngredientDTO> getLowStockIngredients();
     List<IngredientDTO> getAllIngredients();
 }

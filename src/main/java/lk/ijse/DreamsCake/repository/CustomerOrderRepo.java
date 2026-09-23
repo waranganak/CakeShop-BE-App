@@ -15,4 +15,17 @@ public interface CustomerOrderRepo extends JpaRepository<CustomerOrder, Long> {
             "o.id, o.orderDate, o.totalAmount, o.status, o.customer.id) " +
             "FROM CustomerOrder o WHERE o.customer.id = ?1")
     List<CustomerOrderDTO> getOrdersByCustomerId(Long customerId);
+
+//    @Query("SELECT DISTINCT o FROM CustomerOrder o " +
+//            "LEFT JOIN FETCH o.customer " +
+//            "LEFT JOIN FETCH o.orderDetails od " +
+//            "LEFT JOIN FETCH od.product")
+//    List<CustomerOrder> findAllOrdersWithDetails();
+
+    @Query("SELECT DISTINCT o FROM CustomerOrder o " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.orderDetails od " +
+            "LEFT JOIN FETCH od.product " +
+            "WHERE o.payment IS NOT NULL")
+    List<CustomerOrder> findAllOrdersWithPayments();
 }

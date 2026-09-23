@@ -63,4 +63,10 @@ public class IngredientController {
         List<IngredientDTO> ingredients = ingredientService.getAllIngredients();
         return new CommonResponse(OPERATION_SUCCESS, ingredients, SUCCESS_MESSAGE);
     }
+
+    @GetMapping(value = "/low-stock", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse getLowStockIngredients() {
+        List<IngredientDTO> lowStockIngredients = ingredientService.getLowStockIngredients();
+        return new CommonResponse(OPERATION_SUCCESS, lowStockIngredients, SUCCESS_MESSAGE);
+    }
 }

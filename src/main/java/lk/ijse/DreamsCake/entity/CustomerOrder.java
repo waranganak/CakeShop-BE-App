@@ -1,17 +1,18 @@
 package lk.ijse.DreamsCake.entity;
 
-
 import jakarta.persistence.*;
 import lk.ijse.DreamsCake.enums.OrderStatus;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "customer_orders")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerOrder {
@@ -24,11 +25,10 @@ public class CustomerOrder {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-
     @ManyToOne
     private Customer customer;
 
-    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetail> orderDetails;
 
     @OneToOne(mappedBy = "customerOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

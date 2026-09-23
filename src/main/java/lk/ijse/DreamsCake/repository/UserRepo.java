@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
-    Optional<User> findByUserNameAndPassword(String username, String password);
 
     @Query(value = "SELECT new lk.ijse.DreamsCake.dto.UserDTO(u.userId,u.userName,u.userRoles) " +
             "FROM User u")

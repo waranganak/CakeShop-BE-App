@@ -28,19 +28,25 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/user/login", "/v1/user/signup").permitAll()
+                        // 1. Browser Preflight Check
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers("/v1/product/**", "/v1/category/**", "/v1/ingredient/**").hasRole("ADMIN")
+                        // 2. Public Authentication & User Signup/Login Routes
+                        .requestMatchers(HttpMethod.POST, "/v1/user/login", "/v1/user/signup", "/v1/user/save-user").permitAll()
+                        // 3. Public Delivery & Rider Portal Endpoints (QR Scan & Status Update)
+                        .requestMatchers("/v1/delivery/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/riders/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/v1/user/users").hasRole("ADMIN")
+                        // 4. Public Browse / Discovery Endpoints (Products, Categories, Ingredients, etc.)
+                        .requestMatchers(HttpMethod.GET, "/v1/product/**", "/v1/category/**", "/v1/ingredient/**").permitAll()
 
+                        // 5. Authenticated Endpoints (Remaining all routes require valid token)
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -70,7 +76,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 

@@ -5,7 +5,6 @@ import lk.ijse.DreamsCake.dto.SignupDTO;
 import lk.ijse.DreamsCake.entity.Customer;
 import lk.ijse.DreamsCake.exception.ApiException;
 import lk.ijse.DreamsCake.repository.CustomerRepo;
-import lk.ijse.DreamsCake.service.AuditLogService;
 import lk.ijse.DreamsCake.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +19,9 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepo customerRepo;
-    private final AuditLogService auditLogService;
 
-    public CustomerServiceImpl(CustomerRepo customerRepo, AuditLogService auditLogService) {
+    public CustomerServiceImpl(CustomerRepo customerRepo) {
         this.customerRepo = customerRepo;
-        this.auditLogService = auditLogService;
     }
 
     @Override
@@ -34,6 +31,19 @@ public class CustomerServiceImpl implements CustomerService {
         if (signupDTO.getName() == null || signupDTO.getName().trim().isEmpty()) {
             throw new ApiException(400, "Customer name cannot be empty");
         }
+        if (signupDTO.getPhone() == null || signupDTO.getPhone().trim().isEmpty()) {
+            throw new ApiException(400, "Customer phone number cannot be empty");
+        }
+        if (signupDTO.getEmail() == null || signupDTO.getEmail().trim().isEmpty()) {
+            throw new ApiException(400, "Customer email cannot be empty");
+        }
+
+        if (customerRepo.existsByPhone(signupDTO.getPhone())) {
+            throw new ApiException(400, "A customer with this phone number already exists!");
+        }
+        if (customerRepo.existsByEmail(signupDTO.getEmail())) {
+            throw new ApiException(400, "A customer with this email address already exists!");
+        }
 
         Customer customer = new Customer();
         customer.setName(signupDTO.getName());
@@ -42,7 +52,6 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setAddress(signupDTO.getAddress());
         customerRepo.save(customer);
 
-        auditLogService.saveLog("Created customer: " + signupDTO.getName(), 1L);
     }
 
     @Override
@@ -56,6 +65,13 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepo.findById(customerDTO.getId())
                 .orElseThrow(() -> new ApiException(404, "Customer not found with ID: " + customerDTO.getId()));
 
+        if (customerRepo.existsByPhoneAndIdNot(customerDTO.getPhone(), customerDTO.getId())) {
+            throw new ApiException(400, "Another customer is already using this phone number!");
+        }
+        if (customerRepo.existsByEmailAndIdNot(customerDTO.getEmail(), customerDTO.getId())) {
+            throw new ApiException(400, "Another customer is already using this email address!");
+        }
+
         customer.setName(customerDTO.getName());
         customer.setEmail(customerDTO.getEmail());
         customer.setPhone(customerDTO.getPhone());
@@ -63,9 +79,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerRepo.save(customer);
 
-        auditLogService.saveLog("Updated customer: " + customerDTO.getName(), 1L);
     }
-
 
     @Override
     public CustomerDTO searchCustomer(Long id) {
@@ -90,9 +104,20 @@ public class CustomerServiceImpl implements CustomerService {
                 cust.getAddress()
         )).collect(Collectors.toList());
     }
+
     @Override
     public List<CustomerDTO> filterCustomersByName(String name) {
         log.info("Filtering customers by name: {}", name);
         return customerRepo.filterCustomersByName(name);
+    }
+
+    @Override
+    public Long getCustomerIdByUsername(String username) {
+        Customer customer = customerRepo.findByName(username).orElse(null);
+
+        if (customer != null) {
+            return customer.getId();
+        }
+        return null;
     }
 }

@@ -5,7 +5,6 @@ import lk.ijse.DreamsCake.entity.Category;
 import lk.ijse.DreamsCake.exception.ApiException;
 import lk.ijse.DreamsCake.exception.ResourceNotFoundException;
 import lk.ijse.DreamsCake.repository.CategoryRepo;
-import lk.ijse.DreamsCake.service.AuditLogService;
 import lk.ijse.DreamsCake.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +19,9 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepo categoryRepo;
-    private final AuditLogService auditLogService;
 
-    public CategoryServiceImpl(CategoryRepo categoryRepo, AuditLogService auditLogService) {
+    public CategoryServiceImpl(CategoryRepo categoryRepo ) {
         this.categoryRepo = categoryRepo;
-        this.auditLogService = auditLogService;
     }
 
     @Override
@@ -57,7 +54,6 @@ public class CategoryServiceImpl implements CategoryService {
         category.setDescription(categoryDTO.getDescription());
         categoryRepo.save(category);
 
-        auditLogService.saveLog("Created category: " + categoryDTO.getCategoryName(), 1L);
     }
 
     @Override
@@ -71,7 +67,6 @@ public class CategoryServiceImpl implements CategoryService {
         category.setDescription(categoryDTO.getDescription());
         categoryRepo.save(category);
 
-        auditLogService.saveLog("Updated category ID: " + categoryDTO.getId(), 1L);
     }
 
     @Override
@@ -83,7 +78,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         categoryRepo.deleteById(id);
-        auditLogService.saveLog("Deleted category ID: " + id, 1L);
     }
 
     @Override

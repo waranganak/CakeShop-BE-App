@@ -22,5 +22,14 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
             "WHERE c.id = ?1")
     CustomerDTO searchCustomer(Long id);
 
-    Optional<Customer> findByName(String name);
+    @Query("SELECT c FROM Customer c WHERE c.name = ?1")
+    Optional<Customer> findByName(String email);
+
+
+    boolean existsByPhone(String phone);
+    boolean existsByEmail(String email);
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+    boolean existsByEmailAndIdNot(String email, Long id);
+
 }
+

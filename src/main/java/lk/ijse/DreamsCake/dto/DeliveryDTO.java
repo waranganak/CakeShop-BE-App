@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 public class DeliveryDTO {
     private Long id;
     private String deliveryStatus;
-    private String address;
     private String riderName;
     private Long orderId;
+    private Long riderId;
+
+    private CustomerOrderDTO customerOrder;
 }

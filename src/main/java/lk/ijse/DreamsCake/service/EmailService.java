@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface EmailService {
     void sendOrderConfirmationEmail(String toEmail, String orderId, double totalAmount, List<OrderDetailDTO> orderDetails);
+    void sendRiderCredentials(String toEmail, String riderName, String password);
 }

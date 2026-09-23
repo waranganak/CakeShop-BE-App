@@ -1,6 +1,5 @@
 package lk.ijse.DreamsCake.entity;
 
-
 import jakarta.persistence.*;
 import lk.ijse.DreamsCake.enums.OrderStatus;
 import lombok.AllArgsConstructor;
@@ -24,5 +23,5 @@ public class Delivery {
     private CustomerOrder customerOrder;
 
     @ManyToOne
-    private User rider;
+    private Rider rider;
 }

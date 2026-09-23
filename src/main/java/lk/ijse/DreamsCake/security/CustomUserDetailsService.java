@@ -1,8 +1,10 @@
 package lk.ijse.DreamsCake.security;
 
+import lk.ijse.DreamsCake.entity.Rider;
+import lk.ijse.DreamsCake.entity.User;
+import lk.ijse.DreamsCake.repository.RiderRepo;
 import lk.ijse.DreamsCake.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,29 +18,50 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepo userRepository;
+    private final RiderRepo riderRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<lk.ijse.DreamsCake.entity.User> optionalUser = userRepository.findByUserName(username);
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
 
-        if(optionalUser.isEmpty())
-            throw new UsernameNotFoundException("Sorry no user");
+        Optional<User> optionalUser = userRepository.findByUserName(usernameOrEmail);
 
-        String userRolesStr = optionalUser.get().getUserRoles();
-        String[] roles = new String[0];
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String userRolesStr = user.getUserRoles();
+            String[] roles = parseRoles(userRolesStr);
+
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getUserName())
+                    .password(user.getPassword())
+                    .roles(roles)
+                    .build();
+        }
+
+        Optional<Rider> optionalRider = riderRepository.findByEmail(usernameOrEmail);
+
+        if (optionalRider.isPresent()) {
+            Rider rider = optionalRider.get();
+
+            String roleName = rider.getRole() != null ? rider.getRole().name() : "RIDER";
+
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(rider.getEmail())
+                    .password(rider.getPassword())
+                    .roles(roleName)
+                    .build();
+        }
+
+        throw new UsernameNotFoundException("User or Rider not found with username/email: " + usernameOrEmail);
+    }
+
+    private String[] parseRoles(String userRolesStr) {
         if (userRolesStr != null && !userRolesStr.trim().isEmpty()) {
-            roles = Arrays.stream(userRolesStr.split(","))
+            return Arrays.stream(userRolesStr.split(","))
                     .map(String::trim)
                     .map(role -> role.startsWith("ROLE_") ? role.substring(5) : role)
                     .filter(role -> !role.isEmpty())
                     .toArray(String[]::new);
         }
-
-        return User.builder()
-                .username(optionalUser.get().getUserName())
-                .password(optionalUser.get().getPassword())
-                .roles(roles)
-                .build();
+        return new String[0];
     }
-
 }

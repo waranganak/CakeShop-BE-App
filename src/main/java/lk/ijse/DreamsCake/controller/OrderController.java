@@ -32,4 +32,8 @@ public class OrderController {
     public List<CustomerOrderDTO> getOrdersByCustomer(@PathVariable Long customerId) {
         return orderService.getOrdersByCustomer(customerId);
     }
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CustomerOrderDTO> getAllOrders() {
+        return orderService.getAllOrders();
+    }
 }

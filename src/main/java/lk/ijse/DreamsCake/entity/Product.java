@@ -19,6 +19,8 @@ public class Product {
     private Double price;
     private int qty;
     private String description;
+    private String imageUrl;
+
 
 
     @ManyToOne

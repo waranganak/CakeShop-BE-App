@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 public class SupplierOrderDTO {
     private Long id;
     private LocalDate orderDate;
-    private Double totalCost;
+    private String status;
     private Long supplierId;
+    private List<SupplierOrderDetailDTO> orderDetails;
 }

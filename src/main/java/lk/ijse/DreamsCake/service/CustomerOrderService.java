@@ -6,4 +6,6 @@ import java.util.List;
 public interface CustomerOrderService {
     void placeOrder(CustomerOrderDTO orderDTO);
     List<CustomerOrderDTO> getOrdersByCustomer(Long customerId);
+
+    List<CustomerOrderDTO> getAllOrders();
 }

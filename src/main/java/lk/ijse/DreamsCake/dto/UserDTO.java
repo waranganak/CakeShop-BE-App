@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UserDTO {
-    private long userId;
+    private Long userId;
     private Long customerId;
+
 
     @NotBlank(message = "Username cannot be blank")
     private String userName;

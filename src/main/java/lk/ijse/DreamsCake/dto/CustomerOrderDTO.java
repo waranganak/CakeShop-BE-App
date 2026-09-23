@@ -16,6 +16,7 @@ public class CustomerOrderDTO {
     private Double totalAmount;
     private OrderStatus status;
     private Long customerId;
+    private String paymentMethod;
     private List<OrderDetailDTO> orderDetails;
 
     public CustomerOrderDTO(Long id, LocalDateTime orderDate, Double totalAmount, OrderStatus status, Long customerId) {
@@ -25,6 +26,4 @@ public class CustomerOrderDTO {
         this.status = status;
         this.customerId = customerId;
     }
-
-
 }

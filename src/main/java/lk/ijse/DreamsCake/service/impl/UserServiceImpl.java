@@ -5,9 +5,10 @@ import lk.ijse.DreamsCake.dto.UserDTO;
 import lk.ijse.DreamsCake.entity.Customer;
 import lk.ijse.DreamsCake.entity.User;
 import lk.ijse.DreamsCake.exception.ApiException;
-import lk.ijse.DreamsCake.repository.CustomerRepo; // 👈 මේක නැවත එකතු කරන්න
+import lk.ijse.DreamsCake.repository.CustomerRepo;
 import lk.ijse.DreamsCake.repository.UserRepo;
 import lk.ijse.DreamsCake.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,17 +20,12 @@ import java.util.Optional;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
     private final CustomerRepo customerRepo;
     private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepo userRepo, CustomerRepo customerRepo, PasswordEncoder passwordEncoder) {
-        this.userRepo = userRepo;
-        this.customerRepo = customerRepo;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public UserDTO getUserDetails(String username, String password) {
@@ -70,6 +66,24 @@ public class UserServiceImpl implements UserService {
         user.setUserRoles("CUSTOMER");
 
         userRepo.save(user);
+    }
+
+    @Override
+    public void saveUser(UserDTO userDTO) {
+        log.info("Saving new user from Admin panel: {}", userDTO.getUserName());
+
+        User user = new User();
+        user.setUserName(userDTO.getUserName());
+        user.setUserRoles(userDTO.getUserRoles());
+
+        if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        } else {
+            throw new ApiException(400, "Password is required for new user");
+        }
+
+        userRepo.save(user);
+        log.info("User successfully saved with role: {}", userDTO.getUserRoles());
     }
 
     @Override
@@ -114,5 +128,14 @@ public class UserServiceImpl implements UserService {
 
         userRepo.save(user);
         log.info("User updated successfully with ID: {}", userDTO.getUserId());
+    }
+
+    @Override
+    public void deleteUser(long userId) {
+        if (userRepo.existsById(userId)) {
+            userRepo.deleteById(userId);
+        } else {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
     }
 }

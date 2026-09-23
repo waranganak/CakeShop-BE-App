@@ -31,14 +31,18 @@ public class ProductDTO {
     @NotNull(message = "Category ID is required")
     private Long categoryId;
 
+    private String imageUrl;
+
     private List<ProductIngredientDTO> ingredients;
 
-    public ProductDTO(Long id, String name, String description, Double price, Integer qty, Long categoryId) {
+
+    public ProductDTO(Long id, String name, String description, Double price, Integer qty, String imageUrl, Long categoryId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.qty = qty;
+        this.imageUrl = imageUrl;
         this.categoryId = categoryId;
     }
 }
