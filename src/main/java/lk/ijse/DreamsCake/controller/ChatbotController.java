@@ -45,7 +45,7 @@ public class ChatbotController {
         } else {
             reply = "I'm not quite sure about that. Please check your dashboard or contact our support hotline for further assistance!";
         }
-
+        
         return ResponseEntity.ok(Map.of("reply", reply));
     }
 }
