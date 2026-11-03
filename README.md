@@ -16,7 +16,7 @@
 
 ---
 
-* **Course:** Final Coursework
+* **Course:** AAD Final Coursework
 * **Module:** Advanced API Development
 * **Institution:** Institute of Java and Software Engineering (IJSE)
 * **Author:** H. G. K. Warangana (Kaumini Warangana)
