@@ -19,10 +19,10 @@
 * **Course:** AAD Final Coursework
 * **Module:** Advanced API Development
 * **Institution:** Institute of Java and Software Engineering (IJSE)
-* **Author:** H. G. K. Warangana (Kaumini Warangana)
-* **Project Documentation:** [Dream's Cake Project Report (Google Docs)](https://docs.google.com)[cite: 1]
-* **Live API URL:** [https://dreams-cake-backend.onrender.com](https://onrender.com)[cite: 1]
-* **Frontend Application:** [https://dreams-cake-webapp.vercel.app](https://vercel.app)[cite: 1]
+* **Author:** H. G. K. Warangana
+* **Project Documentation:** [Dream's Cake Project Report (Google Docs)](https://docs.google.com)
+* **Live API URL:** [https://dreams-cake-backend.onrender.com](https://onrender.com)
+* **Frontend Application:** [https://dreams-cake-webapp.vercel.app](https://vercel.app)
 
 ---
 
